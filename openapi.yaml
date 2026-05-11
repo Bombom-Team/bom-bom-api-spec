@@ -1,0 +1,73 @@
+openapi: 3.0.3
+info:
+  title: BomBom API
+  version: 1.0.0
+
+servers:
+  - url: https://api.bombom.news
+    description: BomBom Production API
+
+paths:
+  /api/v1/members/me/pet:
+    get:
+      tags: [Pet]
+      operationId: getPet
+      summary: 내 펫 정보 조회
+      description: 현재 로그인한 사용자의 펫 정보를 조회합니다.
+      security:
+        - sessionCookie: []
+      responses:
+        '200':
+          description: 펫 정보 조회 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PetResponse'
+        '401':
+          description: 인증 실패
+
+  /api/v1/members/me/pet/attendance:
+    post:
+      tags: [Pet]
+      operationId: attend
+      summary: 출석 점수 부여
+      description: 오늘의 출석 점수를 펫에게 부여합니다.
+      security:
+        - sessionCookie: []
+      responses:
+        '200':
+          description: 출석 점수 부여 성공
+        '401':
+          description: 인증 실패
+
+components:
+  securitySchemes:
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: JSESSIONID
+
+  schemas:
+    PetResponse:
+      type: object
+      properties:
+        level:
+          type: integer
+          format: int32
+          description: 펫 레벨
+        currentStageScore:
+          type: integer
+          format: int32
+          description: 현재 스테이지 점수
+        requiredStageScore:
+          type: integer
+          format: int32
+          description: 필요한 스테이지 점수
+        isAttended:
+          type: boolean
+          description: 출석 여부
+      required:
+        - level
+        - currentStageScore
+        - requiredStageScore
+        - isAttended
