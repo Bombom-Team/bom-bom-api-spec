@@ -8,6 +8,47 @@ servers:
     description: BomBom Production API
 
 paths:
+  /api/v1/articles:
+    get:
+      tags: [Article]
+      operationId: getArticles
+      summary: 아티클 목록 조회
+      description: |
+        조건에 맞는 아티클 목록을 페이징하여 조회합니다.
+        (정렬 기본값: ?page=0&size=10&sort=arrivedDateTime,desc)
+      x-spring-paginated: true
+      x-needs-login-member: true
+      security:
+        - sessionCookie: []
+      parameters:
+        - name: date
+          in: query
+          required: false
+          description: 필터링할 도착 날짜 (yyyy-MM-dd)
+          schema:
+            type: string
+            format: date
+        - name: newsletterId
+          in: query
+          required: false
+          description: 필터링할 뉴스레터 ID
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+            x-message: id는 1 이상의 값이어야 합니다.
+      responses:
+        '200':
+          description: 아티클 목록 조회 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageArticleResponse'
+        '400':
+          description: 잘못된 정렬 파라미터 요청
+        '401':
+          description: 인증 실패
+
   /api/v1/members/me/pet:
     get:
       tags: [Pet]
@@ -48,8 +89,117 @@ components:
       name: JSESSIONID
 
   schemas:
+    ArticleResponse:
+      type: object
+      required:
+        - articleId
+        - title
+        - contentsSummary
+        - arrivedDateTime
+        - expectedReadTime
+        - isRead
+        - isBookmarked
+        - newsletter
+      properties:
+        articleId:
+          type: integer
+          format: int64
+          description: 아티클 ID
+        title:
+          type: string
+          description: 아티클 제목
+        contentsSummary:
+          type: string
+          description: 본문 요약
+        arrivedDateTime:
+          type: string
+          format: date-time
+          description: 도착 일시
+        thumbnailUrl:
+          type: string
+          nullable: true
+          description: 썸네일 이미지 URL
+        expectedReadTime:
+          type: integer
+          format: int32
+          description: 예상 읽기 시간 (분)
+        isRead:
+          type: boolean
+          description: 읽음 여부
+        isBookmarked:
+          type: boolean
+          description: 북마크 여부
+        newsletter:
+          $ref: '#/components/schemas/NewsletterSummaryResponse'
+
+    NewsletterSummaryResponse:
+      type: object
+      required:
+        - name
+        - category
+      properties:
+        name:
+          type: string
+          description: 뉴스레터명
+        imageUrl:
+          type: string
+          nullable: true
+          description: 이미지 URL
+        category:
+          type: string
+          description: 카테고리
+
+    PageArticleResponse:
+      type: object
+      description: 페이징된 아티클 목록 응답
+      required:
+        - content
+        - totalElements
+        - totalPages
+        - number
+        - size
+        - numberOfElements
+        - first
+        - last
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/ArticleResponse'
+        totalElements:
+          type: integer
+          format: int64
+          description: 전체 데이터 개수
+        totalPages:
+          type: integer
+          format: int32
+          description: 전체 페이지 수
+        number:
+          type: integer
+          format: int32
+          description: 현재 페이지 번호 (0-base)
+        size:
+          type: integer
+          format: int32
+          description: 페이지 크기
+        numberOfElements:
+          type: integer
+          format: int32
+          description: 현재 페이지 데이터 개수
+        first:
+          type: boolean
+          description: 첫 페이지 여부
+        last:
+          type: boolean
+          description: 마지막 페이지 여부
+
     PetResponse:
       type: object
+      required:
+        - level
+        - currentStageScore
+        - requiredStageScore
+        - isAttended
       properties:
         level:
           type: integer
@@ -66,8 +216,3 @@ components:
         isAttended:
           type: boolean
           description: 출석 여부
-      required:
-        - level
-        - currentStageScore
-        - requiredStageScore
-        - isAttended
