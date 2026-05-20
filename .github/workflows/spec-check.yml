@@ -1,0 +1,43 @@
+name: Spec Check
+
+on:
+  pull_request:
+    paths:
+      - "tsp/**"
+      - "openapi.yaml"
+      - "tspconfig.yaml"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - ".github/workflows/spec-check.yml"
+  push:
+    branches: [main]
+
+jobs:
+  verify:
+    name: Verify openapi.yaml matches .tsp
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Compile TypeSpec
+        run: pnpm build
+
+      - name: Check openapi.yaml is up-to-date
+        run: |
+          if ! git diff --exit-code openapi.yaml; then
+            echo "::error::openapi.yaml is out of sync with .tsp sources."
+            echo "Run 'pnpm build' locally and commit the regenerated openapi.yaml."
+            exit 1
+          fi
