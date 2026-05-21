@@ -1,0 +1,82 @@
+name: Publish Maven Package
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    name: Publish versioned spec artifact
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          server-id: github
+          server-username: GITHUB_ACTOR
+          server-password: GITHUB_TOKEN
+
+      - name: Resolve release version
+        id: version
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          if [ -z "${version}" ] || [ "${version}" = "${GITHUB_REF_NAME}" ]; then
+            echo "Tag must start with v, for example v1.2.3" >&2
+            exit 1
+          fi
+
+          echo "value=${version}" >> "${GITHUB_OUTPUT}"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check package.json version matches tag
+        run: |
+          package_version="$(node -p "require('./package.json').version")"
+          tag_version="${{ steps.version.outputs.value }}"
+
+          if [ "${package_version}" != "${tag_version}" ]; then
+            echo "::error::package.json version (${package_version}) does not match tag version (${tag_version})."
+            exit 1
+          fi
+
+      - name: Build spec
+        run: pnpm build
+
+      - name: Check openapi.yaml exists
+        run: test -f openapi.yaml
+
+      - name: Validate OpenAPI YAML
+        run: pnpm validate
+
+      - name: Package Maven artifact
+        run: pnpm package:maven ${{ steps.version.outputs.value }}
+
+      - name: Publish to GitHub Packages
+        run: >
+          mvn --batch-mode deploy:deploy-file
+          -DrepositoryId=github
+          -Durl=https://maven.pkg.github.com/Bombom-Team/bom-bom-api-spec
+          -Dfile=build/maven/bom-bom-api-spec-${{ steps.version.outputs.value }}.jar
+          -DpomFile=build/maven/pom.xml
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -8,6 +8,7 @@ on:
       - "tspconfig.yaml"
       - "package.json"
       - "pnpm-lock.yaml"
+      - "scripts/**"
       - ".github/workflows/spec-check.yml"
   push:
     branches: [main]
@@ -33,6 +34,12 @@ jobs:
 
       - name: Compile TypeSpec
         run: pnpm build
+
+      - name: Check openapi.yaml exists
+        run: test -f openapi.yaml
+
+      - name: Validate OpenAPI YAML
+        run: pnpm validate
 
       - name: Check openapi.yaml is up-to-date
         run: |

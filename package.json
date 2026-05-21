@@ -8,6 +8,8 @@
     "build": "tsp compile tsp",
     "watch": "tsp compile tsp --watch",
     "format": "tsp format \"tsp/**/*.tsp\"",
+    "validate": "ruby -e 'require \"yaml\"; YAML.load_file(\"openapi.yaml\")'",
+    "package:maven": "bash scripts/package-maven-artifact.sh",
     "prepare": "simple-git-hooks"
   },
   "devDependencies": {
