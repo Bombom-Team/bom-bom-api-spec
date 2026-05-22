@@ -46,6 +46,7 @@ namespace Pet {
   @doc("현재 로그인한 사용자의 펫 정보를 조회합니다.")
   @operationId("getPet")
   @useAuth(sessionCookie)
+  @extension("x-needs-login-member", true)
   @get
   op getPet(): GetPetOk | UnauthorizedResponse;
 
@@ -53,6 +54,7 @@ namespace Pet {
   @doc("오늘의 출석 점수를 펫에게 부여합니다.")
   @operationId("attend")
   @useAuth(sessionCookie)
+  @extension("x-needs-login-member", true)
   @route("/attendance")
   @post
   op attend(): AttendOk | UnauthorizedResponse;
