@@ -1,0 +1,23 @@
+{
+  "name": "bom-bom-api-spec",
+  "version": "1.0.0",
+  "private": true,
+  "description": "봄봄 백엔드와 프론트엔드 간 API 계약을 위한 OpenAPI 명세 (TypeSpec)",
+  "packageManager": "pnpm@10.33.2",
+  "scripts": {
+    "build": "tsp compile tsp",
+    "watch": "tsp compile tsp --watch",
+    "format": "tsp format \"tsp/**/*.tsp\"",
+    "prepare": "simple-git-hooks"
+  },
+  "devDependencies": {
+    "@typespec/compiler": "^0.65.0",
+    "@typespec/http": "^0.65.0",
+    "@typespec/openapi": "^0.65.0",
+    "@typespec/openapi3": "^0.65.0",
+    "simple-git-hooks": "^2.11.1"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "bash scripts/precommit-build.sh"
+  }
+}
