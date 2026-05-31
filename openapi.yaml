@@ -5,6 +5,7 @@ info:
 tags:
   - name: Article
   - name: Pet
+  - name: Reading
 paths:
   /api/v1/articles:
     get:
@@ -86,6 +87,118 @@ paths:
       security:
         - sessionCookie: []
       x-needs-login-member: true
+  /api/v1/members/me/reading/calendar:
+    get:
+      operationId: getReadingCalendar
+      summary: 월간 읽기 캘린더 조회
+      description: 로그인한 회원의 해당 연·월 일자별 읽기 현황을 조회합니다.
+      parameters:
+        - name: year
+          in: query
+          required: true
+          description: 조회할 연도
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+            x-message: year는 1 이상의 값이어야 합니다.
+          x-message: year는 1 이상의 값이어야 합니다.
+          explode: false
+        - name: month
+          in: query
+          required: true
+          description: 조회할 월 (1-12)
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+            maximum: 12
+            x-message: month는 1 이상 12 이하의 값이어야 합니다.
+          x-message: month는 1 이상 12 이하의 값이어야 합니다.
+          explode: false
+      responses:
+        '200':
+          description: 읽기 캘린더 조회 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadingCalendarResponse'
+        '400':
+          description: 잘못된 연·월 파라미터 요청
+        '401':
+          description: 인증 실패
+      tags:
+        - Reading
+      security:
+        - sessionCookie: []
+      x-needs-login-member: true
+  /api/v1/members/me/reading/d-day:
+    get:
+      operationId: getReadingDDay
+      summary: 읽기 D-Day 조회
+      description: 로그인한 회원의 가입일 이래로 지난 일수를 조회합니다.
+      parameters: []
+      responses:
+        '200':
+          description: 읽기 D-Day 조회 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadingDDayResponse'
+        '401':
+          description: 인증 실패
+      tags:
+        - Reading
+      security:
+        - sessionCookie: []
+      x-needs-login-member: true
+  /api/v1/members/me/reading/dashboard:
+    get:
+      operationId: getReadingDashboard
+      summary: 월간 읽기 대시보드 조회
+      description: |-
+        로그인한 회원의 해당 연·월 읽기 통계를 조회합니다.
+        읽은 아티클 수(지난 달 대비 증감 포함), 북마크 수, 자주 읽은 뉴스레터를 반환합니다.
+      parameters:
+        - name: year
+          in: query
+          required: true
+          description: 조회할 연도
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+            x-message: year는 1 이상의 값이어야 합니다.
+          x-message: year는 1 이상의 값이어야 합니다.
+          explode: false
+        - name: month
+          in: query
+          required: true
+          description: 조회할 월 (1-12)
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+            maximum: 12
+            x-message: month는 1 이상 12 이하의 값이어야 합니다.
+          x-message: month는 1 이상 12 이하의 값이어야 합니다.
+          explode: false
+      responses:
+        '200':
+          description: 읽기 대시보드 조회 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadingDashboardResponse'
+        '400':
+          description: 잘못된 연·월 파라미터 요청
+        '401':
+          description: 인증 실패
+      tags:
+        - Reading
+      security:
+        - sessionCookie: []
+      x-needs-login-member: true
 components:
   schemas:
     ArticleResponse:
@@ -131,6 +244,37 @@ components:
         newsletter:
           $ref: '#/components/schemas/NewsletterSummaryResponse'
       description: 아티클 정보
+    ChangeDirection:
+      type: string
+      enum:
+        - UP
+        - DOWN
+        - SAME
+      description: 증감 방향
+    FrequentReadNewsletterResponse:
+      type: object
+      required:
+        - rank
+        - newsletterId
+        - name
+        - readCount
+      properties:
+        rank:
+          type: integer
+          format: int32
+          description: 순위 (1-base)
+        newsletterId:
+          type: integer
+          format: int64
+          description: 뉴스레터 ID
+        name:
+          type: string
+          description: 뉴스레터명
+        readCount:
+          type: integer
+          format: int32
+          description: 이번 달 읽은 아티클 수
+      description: 자주 읽은 뉴스레터 정보
     NewsletterSummaryResponse:
       type: object
       required:
@@ -216,6 +360,102 @@ components:
           type: boolean
           description: 출석 여부
       description: 펫 정보
+    ReadingCalendarDayResponse:
+      type: object
+      required:
+        - date
+        - read
+        - readCount
+      properties:
+        date:
+          type: string
+          format: date
+          description: 날짜 (yyyy-MM-dd)
+        read:
+          type: boolean
+          description: 해당 날짜에 아티클을 읽었는지 여부
+        readCount:
+          type: integer
+          format: int32
+          description: 해당 날짜에 읽은 아티클 수
+      description: 읽기 캘린더의 하루 정보
+    ReadingCalendarResponse:
+      type: object
+      required:
+        - days
+      properties:
+        days:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReadingCalendarDayResponse'
+          description: 일자별 읽기 현황
+      description: 월간 읽기 캘린더 응답
+    ReadingDDayResponse:
+      type: object
+      required:
+        - daysSinceJoined
+        - joinedAt
+      properties:
+        daysSinceJoined:
+          type: integer
+          format: int32
+          description: 가입일 이래로 지난 일수
+        joinedAt:
+          type: string
+          format: date
+          description: 가입일 (yyyy-MM-dd)
+      description: 가입일 기준 읽기 D-Day 정보
+    ReadingDashboardBookmarks:
+      type: object
+      required:
+        - count
+      properties:
+        count:
+          type: integer
+          format: int32
+          description: 북마크 개수
+      description: 북마크 통계
+    ReadingDashboardReadArticles:
+      type: object
+      required:
+        - count
+        - changeRate
+        - changeDirection
+      properties:
+        count:
+          type: integer
+          format: int32
+          description: 이번 달 읽은 아티클 수
+        changeRate:
+          type: number
+          format: double
+          description: 지난 달 대비 증감률 (%)
+        changeDirection:
+          allOf:
+            - $ref: '#/components/schemas/ChangeDirection'
+          description: 지난 달 대비 증감 방향
+      description: 월간 읽은 아티클 통계
+    ReadingDashboardResponse:
+      type: object
+      required:
+        - readArticles
+        - bookmarks
+        - frequentReadNewsletters
+      properties:
+        readArticles:
+          allOf:
+            - $ref: '#/components/schemas/ReadingDashboardReadArticles'
+          description: 월간 읽은 아티클 통계
+        bookmarks:
+          allOf:
+            - $ref: '#/components/schemas/ReadingDashboardBookmarks'
+          description: 북마크 통계
+        frequentReadNewsletters:
+          type: array
+          items:
+            $ref: '#/components/schemas/FrequentReadNewsletterResponse'
+          description: 자주 읽은 뉴스레터 TOP
+      description: 월간 읽기 대시보드 응답
   securitySchemes:
     sessionCookie:
       type: apiKey
