@@ -61,7 +61,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ReadingCalendarResponse'
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReadingCalendarDayResponse'
         '400':
           description: 잘못된 연·월 파라미터 요청
         '401':
@@ -185,56 +187,29 @@ components:
           format: int32
           description: 해당 날짜에 읽은 아티클 수
       description: 읽기 캘린더의 하루 정보
-    ReadingCalendarResponse:
-      type: object
-      required:
-        - days
-      properties:
-        days:
-          type: array
-          items:
-            $ref: '#/components/schemas/ReadingCalendarDayResponse'
-          description: 일자별 읽기 현황
-      description: 월간 읽기 캘린더 응답
-    ReadingDashboardBookmarks:
-      type: object
-      required:
-        - count
-      properties:
-        count:
-          type: integer
-          format: int32
-          description: 북마크 개수
-      description: 북마크 통계
-    ReadingDashboardReadArticles:
-      type: object
-      required:
-        - count
-        - changeRate
-        - changeDirection
-      properties:
-        count:
-          type: integer
-          format: int32
-          description: 이번 달 읽은 아티클 수
-        changeRate:
-          type: number
-          format: double
-          description: 지난 달 대비 증감률 (%)
-        changeDirection:
-          $ref: '#/components/schemas/ChangeDirection'
-      description: 월간 읽은 아티클 통계
     ReadingDashboardResponse:
       type: object
       required:
-        - readArticles
-        - bookmarks
+        - readArticleCount
+        - readArticleChangeRate
+        - readArticleChangeDirection
+        - bookmarkCount
         - frequentReadNewsletters
       properties:
-        readArticles:
-          $ref: '#/components/schemas/ReadingDashboardReadArticles'
-        bookmarks:
-          $ref: '#/components/schemas/ReadingDashboardBookmarks'
+        readArticleCount:
+          type: integer
+          format: int32
+          description: 이번 달 읽은 아티클 수
+        readArticleChangeRate:
+          type: number
+          format: double
+          description: 지난 달 대비 읽은 아티클 수 증감률 (%)
+        readArticleChangeDirection:
+          $ref: '#/components/schemas/ChangeDirection'
+        bookmarkCount:
+          type: integer
+          format: int32
+          description: 북마크 개수
         frequentReadNewsletters:
           type: array
           items:

@@ -27,29 +27,6 @@ model ReadingCalendarDayResponse {
   readCount: int32;
 }
 
-@doc("월간 읽기 캘린더 응답")
-model ReadingCalendarResponse {
-  @doc("일자별 읽기 현황")
-  days: ReadingCalendarDayResponse[];
-}
-
-@doc("월간 읽은 아티클 통계")
-model ReadingDashboardReadArticles {
-  @doc("이번 달 읽은 아티클 수")
-  count: int32;
-
-  @doc("지난 달 대비 증감률 (%)")
-  changeRate: float64;
-
-  changeDirection: ChangeDirection;
-}
-
-@doc("북마크 통계")
-model ReadingDashboardBookmarks {
-  @doc("북마크 개수")
-  count: int32;
-}
-
 @doc("자주 읽은 뉴스레터 정보")
 model FrequentReadNewsletterResponse {
   @doc("순위 (1-base)")
@@ -67,8 +44,16 @@ model FrequentReadNewsletterResponse {
 
 @doc("월간 읽기 대시보드 응답")
 model ReadingDashboardResponse {
-  readArticles: ReadingDashboardReadArticles;
-  bookmarks: ReadingDashboardBookmarks;
+  @doc("이번 달 읽은 아티클 수")
+  readArticleCount: int32;
+
+  @doc("지난 달 대비 읽은 아티클 수 증감률 (%)")
+  readArticleChangeRate: float64;
+
+  readArticleChangeDirection: ChangeDirection;
+
+  @doc("북마크 개수")
+  bookmarkCount: int32;
 
   @doc("자주 읽은 뉴스레터 TOP")
   frequentReadNewsletters: FrequentReadNewsletterResponse[];
@@ -77,7 +62,7 @@ model ReadingDashboardResponse {
 @doc("읽기 캘린더 조회 성공")
 model GetReadingCalendarOk {
   @statusCode statusCode: 200;
-  @body body: ReadingCalendarResponse;
+  @body body: ReadingCalendarDayResponse[];
 }
 
 @doc("잘못된 연·월 파라미터 요청")
