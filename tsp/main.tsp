@@ -4,8 +4,6 @@ import "@typespec/openapi3";
 
 import "./common/auth.tsp";
 import "./common/pagination.tsp";
-import "./domains/article.tsp";
-import "./domains/pet.tsp";
 import "./domains/mypage/mypage.tsp";
 import "./domains/mypage/monthlyreport.tsp";
 
