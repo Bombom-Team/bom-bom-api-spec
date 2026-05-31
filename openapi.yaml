@@ -32,28 +32,11 @@ paths:
       summary: 월간 읽기 캘린더 조회
       description: 로그인한 회원의 해당 연·월 일자별 읽기 현황을 조회합니다.
       parameters:
-        - name: year
+        - name: request
           in: query
           required: true
-          description: 조회할 연도
           schema:
-            type: integer
-            format: int32
-            minimum: 1
-            x-message: year는 1 이상의 값이어야 합니다.
-          x-message: year는 1 이상의 값이어야 합니다.
-          explode: false
-        - name: month
-          in: query
-          required: true
-          description: 조회할 월 (1-12)
-          schema:
-            type: integer
-            format: int32
-            minimum: 1
-            maximum: 12
-            x-message: month는 1 이상 12 이하의 값이어야 합니다.
-          x-message: month는 1 이상 12 이하의 값이어야 합니다.
+            $ref: '#/components/schemas/MonthlyReportRequest'
           explode: false
       responses:
         '200':
@@ -81,28 +64,11 @@ paths:
         로그인한 회원의 해당 연·월 읽기 통계를 조회합니다.
         읽은 아티클 수(지난 달 대비 증감 포함), 북마크 수, 자주 읽은 뉴스레터를 반환합니다.
       parameters:
-        - name: year
+        - name: request
           in: query
           required: true
-          description: 조회할 연도
           schema:
-            type: integer
-            format: int32
-            minimum: 1
-            x-message: year는 1 이상의 값이어야 합니다.
-          x-message: year는 1 이상의 값이어야 합니다.
-          explode: false
-        - name: month
-          in: query
-          required: true
-          description: 조회할 월 (1-12)
-          schema:
-            type: integer
-            format: int32
-            minimum: 1
-            maximum: 12
-            x-message: month는 1 이상 12 이하의 값이어야 합니다.
-          x-message: month는 1 이상 12 이하의 값이어야 합니다.
+            $ref: '#/components/schemas/MonthlyReportRequest'
           explode: false
       responses:
         '200':
@@ -168,6 +134,26 @@ components:
           format: date
           description: 가입일 (yyyy-MM-dd)
       description: 회원 가입일 기준 경과일 정보
+    MonthlyReportRequest:
+      type: object
+      required:
+        - year
+        - month
+      properties:
+        year:
+          type: integer
+          format: int32
+          minimum: 1
+          description: 조회할 연도
+          x-message: year는 1 이상의 값이어야 합니다.
+        month:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 12
+          description: 조회할 월 (1-12)
+          x-message: month는 1 이상 12 이하의 값이어야 합니다.
+      description: 월간 리포트 조회 조건
     ReadingCalendarDayResponse:
       type: object
       required:

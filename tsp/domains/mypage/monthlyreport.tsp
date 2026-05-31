@@ -15,6 +15,20 @@ enum ChangeDirection {
   SAME,
 }
 
+@doc("월간 리포트 조회 조건")
+model MonthlyReportRequest {
+  @doc("조회할 연도")
+  @minValue(1)
+  @extension("x-message", "year는 1 이상의 값이어야 합니다.")
+  year: int32;
+
+  @doc("조회할 월 (1-12)")
+  @minValue(1)
+  @maxValue(12)
+  @extension("x-message", "month는 1 이상 12 이하의 값이어야 합니다.")
+  month: int32;
+}
+
 @doc("읽기 캘린더의 하루 정보")
 model ReadingCalendarDayResponse {
   @doc("날짜 (yyyy-MM-dd)")
@@ -102,18 +116,8 @@ namespace Reading {
   @get
   @route("/calendar")
   op getReadingCalendar(
-    @doc("조회할 연도")
-    @minValue(1)
-    @extension("x-message", "year는 1 이상의 값이어야 합니다.")
     @query
-    year: int32,
-
-    @doc("조회할 월 (1-12)")
-    @minValue(1)
-    @maxValue(12)
-    @extension("x-message", "month는 1 이상 12 이하의 값이어야 합니다.")
-    @query
-    month: int32,
+    request: MonthlyReportRequest,
   ): GetReadingCalendarOk | GetReadingCalendarBadRequest | GetReadingCalendarUnauthorized;
 
   @summary("월간 읽기 대시보드 조회")
@@ -127,17 +131,7 @@ namespace Reading {
   @get
   @route("/dashboard")
   op getReadingDashboard(
-    @doc("조회할 연도")
-    @minValue(1)
-    @extension("x-message", "year는 1 이상의 값이어야 합니다.")
     @query
-    year: int32,
-
-    @doc("조회할 월 (1-12)")
-    @minValue(1)
-    @maxValue(12)
-    @extension("x-message", "month는 1 이상 12 이하의 값이어야 합니다.")
-    @query
-    month: int32,
+    request: MonthlyReportRequest,
   ): GetReadingDashboardOk | GetReadingDashboardBadRequest | GetReadingDashboardUnauthorized;
 }
