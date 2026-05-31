@@ -6,7 +6,8 @@ import "./common/auth.tsp";
 import "./common/pagination.tsp";
 import "./domains/article.tsp";
 import "./domains/pet.tsp";
-import "./domains/reading.tsp";
+import "./domains/mypage/mypage.tsp";
+import "./domains/mypage/monthlyreport.tsp";
 
 using TypeSpec.Http;
 using TypeSpec.OpenAPI;
