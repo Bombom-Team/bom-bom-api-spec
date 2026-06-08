@@ -29,6 +29,21 @@ model MonthlyReportRequest {
   month: int32;
 }
 
+alias MonthlyReportQuery = {
+  @doc("조회할 연도")
+  @query
+  @minValue(1)
+  @extension("x-message", "year는 1 이상의 값이어야 합니다.")
+  year: int32;
+
+  @doc("조회할 월 (1-12)")
+  @query
+  @minValue(1)
+  @maxValue(12)
+  @extension("x-message", "month는 1 이상 12 이하의 값이어야 합니다.")
+  month: int32;
+};
+
 @doc("읽기 캘린더의 하루 정보")
 model ReadingCalendarDayResponse {
   @doc("날짜 (yyyy-MM-dd)")
@@ -113,11 +128,11 @@ namespace Reading {
   @operationId("getReadingCalendar")
   @useAuth(sessionCookie)
   @extension("x-needs-login-member", true)
+  @extension("x-spring-query-model", "MonthlyReportRequest")
   @get
   @route("/calendar")
   op getReadingCalendar(
-    @query
-    request: MonthlyReportRequest,
+    ...MonthlyReportQuery,
   ): GetReadingCalendarOk | GetReadingCalendarBadRequest | GetReadingCalendarUnauthorized;
 
   @summary("월간 읽기 대시보드 조회")
@@ -128,10 +143,10 @@ namespace Reading {
   @operationId("getReadingDashboard")
   @useAuth(sessionCookie)
   @extension("x-needs-login-member", true)
+  @extension("x-spring-query-model", "MonthlyReportRequest")
   @get
   @route("/dashboard")
   op getReadingDashboard(
-    @query
-    request: MonthlyReportRequest,
+    ...MonthlyReportQuery,
   ): GetReadingDashboardOk | GetReadingDashboardBadRequest | GetReadingDashboardUnauthorized;
 }

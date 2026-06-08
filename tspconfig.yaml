@@ -8,4 +8,4 @@ options:
     openapi-versions:
       - 3.0.0
     file-type: yaml
-    omit-unreachable-types: true
+    omit-unreachable-types: false
