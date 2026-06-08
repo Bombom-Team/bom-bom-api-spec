@@ -19,4 +19,5 @@ The shared guidance lives in [docs/typespec-authoring.md](../../../docs/typespec
 - Should this endpoint inject `Member member` or `Long memberId`?
 - Should login-member resolution allow anonymous access or invalid-token handling?
 - Is Spring pagination intended, or should pagination be modeled only as explicit OpenAPI query parameters?
+- For multi-field query conditions, should the backend controller receive individual query parameters, a single `@query` model parameter, or one `@ModelAttribute ...Request` DTO via `x-spring-query-model`?
 - When two existing endpoint patterns differ, which one should this new endpoint follow?
