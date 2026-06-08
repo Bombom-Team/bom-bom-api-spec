@@ -238,29 +238,6 @@ components:
             $ref: '#/components/schemas/FrequentReadNewsletterResponse'
           description: 자주 읽은 뉴스레터 TOP
       description: 월간 읽기 대시보드 응답
-    sessionCookie:
-      type: object
-      required:
-        - type
-        - in
-        - name
-      properties:
-        type:
-          type: string
-          enum:
-            - apiKey
-          description: API key authentication
-        in:
-          type: string
-          enum:
-            - cookie
-          description: location of the API key
-        name:
-          type: string
-          enum:
-            - JSESSIONID
-          description: name of the API key
-      description: 세션 쿠키 기반 인증
   securitySchemes:
     sessionCookie:
       type: apiKey
