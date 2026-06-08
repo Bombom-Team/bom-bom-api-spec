@@ -16,6 +16,6 @@ Use the shared guide at [docs/typespec-authoring.md](../../../docs/typespec-auth
 - Prefer acting on verified repo and GitHub evidence over asking broad process questions.
 - When backend codegen behavior matters, inspect the local `2025-bom-bom/backend/bom-bom-server/src/main/resources/openapi-templates/` templates if present before assuming an `x-*` extension exists.
 - Keep TypeSpec file names, `@tag(...)`, and expected generated `*Api` names aligned unless the user explicitly wants a different grouping.
-- For multi-field query conditions that should generate Spring `@ModelAttribute`, use a single `@query` model parameter; the backend template detects query models rather than an `x-*` flag.
+- For multi-field query conditions that should generate Spring `@ModelAttribute`, define a backend request model plus a public query alias, spread the query alias in the operation, and add `@extension("x-spring-query-model", "...Request")` so the backend generator wraps those query fields as the request DTO.
 - If this requires inventing a DTO that is not in the existing backend/spec names, mention the backend `...Request` naming convention and ask the user to confirm both the DTO name and whether it should be shared across operations or split per operation.
 - Avoid unnecessary generated DTOs and `allOf` wrappers: flatten one-field response wrappers when the API shape allows it, and avoid `@doc` on `$ref`-typed object/enum properties unless the generated OpenAPI has been checked.

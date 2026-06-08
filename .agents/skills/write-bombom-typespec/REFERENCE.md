@@ -9,6 +9,7 @@ The shared guidance lives in [docs/typespec-authoring.md](../../../docs/typespec
 - Always confirm the endpoint authentication policy with the user before changing `.tsp`.
 - Ask the user only when the repo and referenced GitHub templates still leave a real ambiguity.
 - Do not invent a new `x-*` extension or a new value shape for an existing one.
+- `x-spring-query-model` is the confirmed backend extension for operations whose public OpenAPI query parameters should remain flattened while the generated Spring interface receives one `@ModelAttribute ...Request` DTO. Keep the DTO model and the query alias separate so client codegen sees individual query fields and backend codegen can still generate the request DTO.
 
 ## Typical Clarification Questions
 
