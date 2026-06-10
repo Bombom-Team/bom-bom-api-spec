@@ -105,6 +105,17 @@ paths:
             x-message: month는 1 이상 12 이하의 값이어야 합니다.
           x-message: month는 1 이상 12 이하의 값이어야 합니다.
           explode: false
+        - name: limit
+          in: query
+          required: true
+          description: 자주 읽은 뉴스레터 조회 개수
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+            x-message: limit는 1 이상의 값이어야 합니다.
+          x-message: limit는 1 이상의 값이어야 합니다.
+          explode: false
       responses:
         '200':
           description: 읽기 대시보드 조회 성공
@@ -120,7 +131,7 @@ paths:
         - MonthlyReport
       security:
         - sessionCookie: []
-      x-spring-query-model: MonthlyReportRequest
+      x-spring-query-model: MonthlyReportDashboardRequest
       x-needs-login-member: true
 components:
   schemas:
@@ -152,8 +163,9 @@ components:
           description: 뉴스레터명
         readCount:
           type: integer
-          format: int32
+          format: int64
           description: 이번 달 읽은 아티클 수
+          x-java-primitive: true
       description: 자주 읽은 뉴스레터 정보
     MemberJoinDaysResponse:
       type: object
@@ -170,6 +182,33 @@ components:
           format: date
           description: 가입일 (yyyy-MM-dd)
       description: 회원 가입일 기준 경과일 정보
+    MonthlyReportDashboardRequest:
+      type: object
+      required:
+        - year
+        - month
+        - limit
+      properties:
+        year:
+          type: integer
+          format: int32
+          minimum: 1
+          description: 조회할 연도
+          x-message: year는 1 이상의 값이어야 합니다.
+        month:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 12
+          description: 조회할 월 (1-12)
+          x-message: month는 1 이상 12 이하의 값이어야 합니다.
+        limit:
+          type: integer
+          format: int32
+          minimum: 1
+          description: 자주 읽은 뉴스레터 조회 개수
+          x-message: limit는 1 이상의 값이어야 합니다.
+      description: 월간 리포트 대시보드 조회 조건
     MonthlyReportRequest:
       type: object
       required:
@@ -206,8 +245,9 @@ components:
           description: 해당 날짜에 아티클을 읽었는지 여부
         readCount:
           type: integer
-          format: int32
+          format: int64
           description: 해당 날짜에 읽은 아티클 수
+          x-java-primitive: true
       description: 읽기 캘린더의 하루 정보
     ReadingDashboardResponse:
       type: object
@@ -220,8 +260,9 @@ components:
       properties:
         readArticleCount:
           type: integer
-          format: int32
+          format: int64
           description: 이번 달 읽은 아티클 수
+          x-java-primitive: true
         readArticleChangeRate:
           type: number
           format: double
@@ -230,8 +271,9 @@ components:
           $ref: '#/components/schemas/ChangeDirection'
         bookmarkCount:
           type: integer
-          format: int32
+          format: int64
           description: 북마크 개수
+          x-java-primitive: true
         frequentReadNewsletters:
           type: array
           items:
