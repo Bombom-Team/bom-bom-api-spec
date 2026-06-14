@@ -100,9 +100,9 @@ model ReadingDashboardResponse {
   readArticleCount: int64;
 
   @doc("지난 달 대비 읽은 아티클 수 증감률 (%)")
-  readArticleChangeRate: float64;
+  readArticleChangeRate: float64 | null;
 
-  readArticleChangeDirection: ChangeDirection;
+  readArticleChangeDirection: ChangeDirection | null;
 
   @doc("북마크 개수")
   @extension("x-java-primitive", true)

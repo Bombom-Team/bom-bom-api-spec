@@ -266,9 +266,12 @@ components:
         readArticleChangeRate:
           type: number
           format: double
+          nullable: true
           description: 지난 달 대비 읽은 아티클 수 증감률 (%)
         readArticleChangeDirection:
-          $ref: '#/components/schemas/ChangeDirection'
+          allOf:
+            - $ref: '#/components/schemas/ChangeDirection'
+          nullable: true
         bookmarkCount:
           type: integer
           format: int64
