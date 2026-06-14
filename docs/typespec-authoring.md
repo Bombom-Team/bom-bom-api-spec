@@ -65,7 +65,7 @@ Treat this as a required confirmation step even if a similar existing endpoint a
 - Use explicit response wrapper models such as `GetThingOk`, `GetThingUnauthorized`, `CreateThingBadRequest`.
 - Prefer `@summary`, `@doc`, `@operationId`, `@tag`, `@route`, `@get` or `@post`, and `@useAuth(...)` consistently.
 - Model nullable optional fields as `field?: T | null`.
-- For multiple query values that the backend should receive as one Spring `@ModelAttribute`, define a request model and pass it as a single `@query` parameter. The current backend `queryParams.mustache` uses `@ModelAttribute` when the query parameter is a model; there is no separate `x-*` flag for this.
+- For multiple query values that the backend should receive as one Spring `@ModelAttribute`, define a request model for the backend DTO and a query alias for the public HTTP query parameters. Add `@extension("x-spring-query-model", "...Request")` to tell the backend generator which DTO should wrap those query fields.
 - Name query condition models as request DTOs when they become backend method parameters, for example `MonthlyReportRequest` and operation parameter `request`.
 - If the intended DTO does not already exist in the backend or spec, ask the user to confirm the DTO name and sharing scope before finalizing it. Mention that existing backend DTO conventions use `...Request` for request-side models.
 - Avoid unnecessary generated records. If a response model only wraps one field such as `{ days: [...] }`, consider returning the array directly when that API shape is acceptable.
@@ -174,15 +174,15 @@ This generates `MonthlyReportApi`. A tag like `Member` would generate `MemberApi
 
 ### Query model as `@ModelAttribute`
 
-The backend `queryParams.mustache` treats model-typed query parameters specially:
+The backend `operation_method_parameters.mustache` treats `x-spring-query-model` specially:
 
 ```mustache
-{{#isModel}}
-@Valid @ModelAttribute {{>optionalDataType}} {{paramName}}
-{{/isModel}}
+{{#vendorExtensions.x-spring-query-model}}
+@Valid @ModelAttribute me.bombom.openapi.model.{{{vendorExtensions.x-spring-query-model}}} request
+{{/vendorExtensions.x-spring-query-model}}
 ```
 
-Use this TypeSpec shape when several query fields should be bound as one Spring model attribute:
+Use this TypeSpec shape when several query fields should be exposed as normal query parameters but bound as one Spring model attribute:
 
 ```tsp
 model MonthlyReportRequest {
@@ -196,13 +196,26 @@ model MonthlyReportRequest {
   month: int32;
 }
 
-op getReadingDashboard(
+alias MonthlyReportQuery = {
   @query
-  request: MonthlyReportRequest,
+  @minValue(1)
+  @extension("x-message", "year는 1 이상의 값이어야 합니다.")
+  year: int32;
+
+  @query
+  @minValue(1)
+  @maxValue(12)
+  @extension("x-message", "month는 1 이상 12 이하의 값이어야 합니다.")
+  month: int32;
+};
+
+@extension("x-spring-query-model", "MonthlyReportRequest")
+op getReadingDashboard(
+  ...MonthlyReportQuery,
 ): GetReadingDashboardOk | GetReadingDashboardBadRequest | GetReadingDashboardUnauthorized;
 ```
 
-The HTTP request remains `?year=2026&month=5`; only the generated Java method signature changes to `@ModelAttribute MonthlyReportRequest request`.
+The OpenAPI/client contract is `?year=2026&month=5`, while the generated Java method signature is `@ModelAttribute MonthlyReportRequest request`.
 
 When creating a new query/request model that is not named in an existing backend controller, DTO, or spec, do not silently invent the name or reuse scope. Ask for confirmation with the local convention:
 

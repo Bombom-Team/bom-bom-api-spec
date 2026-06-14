@@ -29,6 +29,41 @@ model MonthlyReportRequest {
   month: int32;
 }
 
+@doc("월간 리포트 대시보드 조회 조건")
+model MonthlyReportDashboardRequest {
+  ...MonthlyReportRequest;
+
+  @doc("자주 읽은 뉴스레터 조회 개수")
+  @minValue(1)
+  @extension("x-message", "limit는 1 이상의 값이어야 합니다.")
+  limit: int32;
+}
+
+alias MonthlyReportQuery = {
+  @doc("조회할 연도")
+  @query
+  @minValue(1)
+  @extension("x-message", "year는 1 이상의 값이어야 합니다.")
+  year: int32;
+
+  @doc("조회할 월 (1-12)")
+  @query
+  @minValue(1)
+  @maxValue(12)
+  @extension("x-message", "month는 1 이상 12 이하의 값이어야 합니다.")
+  month: int32;
+};
+
+alias MonthlyReportDashboardQuery = {
+  ...MonthlyReportQuery;
+
+  @doc("자주 읽은 뉴스레터 조회 개수")
+  @query
+  @minValue(1)
+  @extension("x-message", "limit는 1 이상의 값이어야 합니다.")
+  limit: int32;
+};
+
 @doc("읽기 캘린더의 하루 정보")
 model ReadingCalendarDayResponse {
   @doc("날짜 (yyyy-MM-dd)")
@@ -38,7 +73,8 @@ model ReadingCalendarDayResponse {
   read: boolean;
 
   @doc("해당 날짜에 읽은 아티클 수")
-  readCount: int32;
+  @extension("x-java-primitive", true)
+  readCount: int64;
 }
 
 @doc("자주 읽은 뉴스레터 정보")
@@ -53,21 +89,24 @@ model FrequentReadNewsletterResponse {
   name: string;
 
   @doc("이번 달 읽은 아티클 수")
-  readCount: int32;
+  @extension("x-java-primitive", true)
+  readCount: int64;
 }
 
 @doc("월간 읽기 대시보드 응답")
 model ReadingDashboardResponse {
   @doc("이번 달 읽은 아티클 수")
-  readArticleCount: int32;
+  @extension("x-java-primitive", true)
+  readArticleCount: int64;
 
   @doc("지난 달 대비 읽은 아티클 수 증감률 (%)")
-  readArticleChangeRate: float64;
+  readArticleChangeRate: float64 | null;
 
-  readArticleChangeDirection: ChangeDirection;
+  readArticleChangeDirection: ChangeDirection | null;
 
   @doc("북마크 개수")
-  bookmarkCount: int32;
+  @extension("x-java-primitive", true)
+  bookmarkCount: int64;
 
   @doc("자주 읽은 뉴스레터 TOP")
   frequentReadNewsletters: FrequentReadNewsletterResponse[];
@@ -113,11 +152,11 @@ namespace Reading {
   @operationId("getReadingCalendar")
   @useAuth(sessionCookie)
   @extension("x-needs-login-member", true)
+  @extension("x-spring-query-model", "MonthlyReportRequest")
   @get
   @route("/calendar")
   op getReadingCalendar(
-    @query
-    request: MonthlyReportRequest,
+    ...MonthlyReportQuery,
   ): GetReadingCalendarOk | GetReadingCalendarBadRequest | GetReadingCalendarUnauthorized;
 
   @summary("월간 읽기 대시보드 조회")
@@ -128,10 +167,10 @@ namespace Reading {
   @operationId("getReadingDashboard")
   @useAuth(sessionCookie)
   @extension("x-needs-login-member", true)
+  @extension("x-spring-query-model", "MonthlyReportDashboardRequest")
   @get
   @route("/dashboard")
   op getReadingDashboard(
-    @query
-    request: MonthlyReportRequest,
+    ...MonthlyReportDashboardQuery,
   ): GetReadingDashboardOk | GetReadingDashboardBadRequest | GetReadingDashboardUnauthorized;
 }

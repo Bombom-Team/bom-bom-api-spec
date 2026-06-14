@@ -21,4 +21,6 @@ Treat that document as the shared source of truth for:
 - Before writing or changing an endpoint, ask the user to confirm the intended authentication policy.
 - Ask the user only when the repo, generated OpenAPI output, and referenced GitHub templates still leave a real ambiguity.
 - Do not invent a new `x-*` extension or a new value shape for an existing one.
+- For multi-field query conditions that should be exposed as flattened OpenAPI query parameters but generated as one Spring `@ModelAttribute ...Request` DTO, use the confirmed `@extension("x-spring-query-model", "...Request")` operation extension with a separate query alias.
+- If the intended backend method shape is unclear, ask whether the backend should receive individual query parameters, a single `@query` model parameter, or one `@ModelAttribute ...Request` DTO through `x-spring-query-model`.
 - Revise `.tsp` files rather than patching `openapi.yaml` by hand.
