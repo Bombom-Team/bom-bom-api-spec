@@ -28,6 +28,38 @@ paths:
       security:
         - sessionCookie: []
       x-needs-login-member: true
+  /api/v1/members/me/rank:
+    get:
+      operationId: getRankSummary
+      summary: 마이페이지 랭킹 요약 조회
+      description: |-
+        로그인한 회원의 마이페이지 랭킹 카드를 조회합니다.
+        rankHistory와 currentRank는 현재월을 제외한 이전달까지의 확정 랭킹을 기준으로 합니다.
+        reading 카드의 value는 누적 읽은 아티클 수, streak 카드의 value는 현재 연속 읽기 일수입니다.
+      parameters:
+        - name: type
+          in: query
+          required: false
+          description: 랭킹 타입 (streak 또는 reading). 생략하면 모든 랭킹 카드를 반환합니다.
+          schema:
+            type: string
+          explode: false
+      responses:
+        '200':
+          description: 마이페이지 랭킹 요약 조회 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RankSummaryResponse'
+        '400':
+          description: 잘못된 랭킹 타입 요청
+        '401':
+          description: 인증 실패
+      tags:
+        - MyPage
+      security:
+        - sessionCookie: []
+      x-needs-login-member: true
   /api/v1/members/me/reading/calendar:
     get:
       operationId: getReadingCalendar
@@ -231,6 +263,60 @@ components:
           description: 조회할 월 (1-12)
           x-message: month는 1 이상 12 이하의 값이어야 합니다.
       description: 월간 리포트 조회 조건
+    RankCardResponse:
+      type: object
+      required:
+        - type
+        - currentRank
+        - rankHistory
+        - value
+      properties:
+        type:
+          type: string
+          description: '랭킹 타입 (streak: 연속 읽기, reading: 다독왕)'
+        currentRank:
+          type: integer
+          format: int64
+          nullable: true
+          description: 이전달까지의 최신 확정 순위. 랭킹 이력이 없으면 null입니다.
+        rankHistory:
+          type: array
+          items:
+            $ref: '#/components/schemas/RankHistoryResponse'
+        value:
+          type: integer
+          format: int32
+          description: 카드 표시 값. streak는 현재 연속 읽기 일수, reading은 누적 읽은 아티클 수입니다.
+      description: 마이페이지 랭킹 카드 정보
+    RankHistoryResponse:
+      type: object
+      required:
+        - month
+        - label
+        - rank
+      properties:
+        month:
+          type: string
+          description: 랭킹 기준 월 (yyyy-MM)
+        label:
+          type: string
+          description: 화면 표시용 월 라벨
+        rank:
+          type: integer
+          format: int64
+          description: 해당 월의 순위
+          x-java-primitive: true
+      description: 마이페이지 랭킹 히스토리 정보
+    RankSummaryResponse:
+      type: object
+      required:
+        - cards
+      properties:
+        cards:
+          type: array
+          items:
+            $ref: '#/components/schemas/RankCardResponse'
+      description: 마이페이지 랭킹 요약 응답
     ReadingCalendarDayResponse:
       type: object
       required:
