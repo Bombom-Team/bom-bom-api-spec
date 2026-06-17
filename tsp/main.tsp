@@ -17,4 +17,6 @@ using TypeSpec.OpenAPI;
   version: "1.0.0",
 })
 @server("https://api.bombom.news", "BomBom Production API")
+@tagMetadata("MyPage", #{description: "마이페이지 관련 API"})
+@tagMetadata("MonthlyReport", #{description: "월간 리포트 관련 API"})
 namespace BomBomAPI;
