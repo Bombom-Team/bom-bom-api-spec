@@ -3,8 +3,10 @@ info:
   title: BomBom API
   version: 1.0.0
 tags:
-  - name: MyPage
   - name: MonthlyReport
+    description: 월간 리포트 관련 API
+  - name: MyPage
+    description: 마이페이지 관련 API
 paths:
   /api/v1/members/me/join-days:
     get:
